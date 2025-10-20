@@ -1,0 +1,73 @@
+#1. Store customer orders
+
+# Step 1 Create a list of customer names
+customerNames = ["Alice", "Bob", "Charlie", "Diana"]
+
+# Step 2: Store each customer's order details (customer name, product, price, category) as tuples inside a list
+custAliceDetails = ("Alice","Laptop",100.0,"Electronics")
+custBobDetails = ("Bob","JavaBook",70.0,"Books")
+custCharlieDetails = ("Charlie","Shirt",45.0,"Clothing")
+custDiana1Details = ("Diana","Chair",40.0,"Home")
+custDiana2Details = ("Diana","Sofa",120,"Home")
+
+allCustomerOrderDetails = [custAliceDetails, custBobDetails, custCharlieDetails, custDiana1Details, custDiana2Details]
+
+# Step 3: Use a dictionary where keys are customer names and values are lists of ordered Products
+customerOrdersDict = {}
+for customerOrder in allCustomerOrderDetails:
+    name, product, price, category = customerOrder
+    customerOrdersDict[name]= customerOrdersDict.get(name, []) + [product]
+
+print("Customer Orders Dictionary: ", customerOrdersDict)
+
+#2. Classify products by category
+
+# Step 1:  Use a dictionary to map each product to its respective category
+productCategoryDict = {}
+for productCategory in allCustomerOrderDetails:
+    name, product, price, category = productCategory
+    if category in productCategoryDict:
+        productCategoryDict[category].append(product)
+    else:
+        productCategoryDict[category] = [product]
+
+# Step 2:  Create a set of unique product categories
+uniqueProductByCategory = set()
+for category, products in productCategoryDict.items():
+    uniqueProductByCategory.add(category)
+
+# Step 3: Display all available product categories
+print("uniqueProductByCategory  : ",uniqueProductByCategory)
+
+"""
+Bulk Commenting below lines 
+uniqueProductByCategory1 = {category for (_, _, _, category) in allCustomerOrderDetails}
+print("uniqueProductByCategory1 : ",uniqueProductByCategory1)
+"""
+
+#3. Analyze customer orders
+"""
+• Use a loop to calculate the total amount each customer spends
+• If the total purchase value is above $100, classify the customer as a high-value buyer
+• If it is between $50 and $100, classify the customer as a moderate buyer
+• If it is below $50, classify them as a low-value buyer
+"""
+
+def get_customer_order_total(customer_name):
+    total = 0.0
+    for customerDetailOrder in allCustomerOrderDetails:
+        name, product, price, category = customerDetailOrder
+        if name == customer_name:
+            total += price
+    return total
+
+for customer in customerNames:
+    total = get_customer_order_total(customer)
+    if total >= 100:
+        print(f"{customer} is high valued buyer with the order total of {total}$")
+    elif 50 <= total < 100:
+        print(f"{customer} is medium valued buyer with the order total of {total}$")
+    else:
+        print(f"{customer} is low valued buyer with the order total of {total}$")
+        
+
