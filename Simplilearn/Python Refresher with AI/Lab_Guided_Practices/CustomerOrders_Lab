@@ -10,7 +10,11 @@ custCharlieDetails = ("Charlie","Shirt",45.0,"Clothing")
 custDiana1Details = ("Diana","Chair",40.0,"Home")
 custDiana2Details = ("Diana","Sofa",120,"Home")
 
-allCustomerOrderDetails = [custAliceDetails, custBobDetails, custCharlieDetails, custDiana1Details, custDiana2Details]
+allCustomerOrderDetails = [custAliceDetails, custBobDetails, custCharlieDetails, custDiana1Details, custDiana2Details
+                           ,("Alice","Shirt",45,"Clothing"),("Elina","Headphones",30,"Electronics"),("Frank","Novel",25,"Books")
+                           ,("Bob","Smartphone",200,"Electronics"),("Charlie","Jeans",60,"Clothing"),("Alice","Table",50,"Home")]
+
+print("All Customer Order Details : ", allCustomerOrderDetails)
 
 # Step 3: Use a dictionary where keys are customer names and values are lists of ordered Products
 customerOrdersDict = {}
@@ -31,13 +35,13 @@ for productCategory in allCustomerOrderDetails:
     else:
         productCategoryDict[category] = [product]
 
-# Step 2:  Create a set of unique product categories
-uniqueProductByCategory = set()
+# Step 2: Create a set of unique product categories
+uniqueCategories = set()
 for category, products in productCategoryDict.items():
-    uniqueProductByCategory.add(category)
+    uniqueCategories.add(category)
 
 # Step 3: Display all available product categories
-print("uniqueProductByCategory  : ",uniqueProductByCategory)
+print("uniqueCategoriesSet  : ",uniqueCategories)
 
 """
 Bulk Commenting below lines 
@@ -69,5 +73,78 @@ for customer in customerNames:
         print(f"{customer} is medium valued buyer with the order total of {total}$")
     else:
         print(f"{customer} is low valued buyer with the order total of {total}$")
-        
 
+#4. Generate business insights
+# Step 1: Calculate the total revenue per product category and store it in a dictionary
+
+def get_category_total(category_name):
+    total = 0.0
+    for customerDetailOrder in allCustomerOrderDetails:
+        _, _, price, category = customerDetailOrder
+        if category == category_name:
+            total += price
+    return total
+
+categoryTotalDict = {}
+for category in uniqueCategories:
+    total = get_category_total(category)
+    categoryTotalDict[category] = total
+
+print("Category Total Revenue : ", categoryTotalDict)       
+
+# Step 2: Extract unique products from all orders using a set
+uniqueProducts = set()
+for category, products in productCategoryDict.items():
+    uniqueProducts.update(products)
+print("Unique Products : ", uniqueProducts)
+
+# Step 3 :Use a list comprehension to find all customers who purchased electronics
+electronics_customers = [name for (name, _, _, category) in allCustomerOrderDetails if "Electronics" in category]
+print("Customers who purchased electronics : ", electronics_customers)
+
+# Step 4: Identify the top three highest-spending customers using sorting
+customer_spending = {}
+for customer in customerNames:
+    total = get_customer_order_total(customer)
+    customer_spending[customer] = total
+"""
+sorted(..., key=lambda x: x[1], reverse=True) sorts that sequence of (name, total) pairs.
+key=lambda x: x[1] tells sorted to compare items by the second element of each pair (the spending total).
+"""
+sorted_customers = sorted(customer_spending.items(), key=lambda x: x[1], reverse=True)
+top_three_customers = sorted_customers[:3]
+print("Top three highest-spending customers : ", top_three_customers)  
+
+#5. Organize and display data
+#Step 1: Print a summary of each customer’s total spending and their classification
+def get_customer_category_totals(customer_name):
+    customercategoryTotal = {}
+    for customerDetailOrder in allCustomerOrderDetails:
+        name, _, price, category = customerDetailOrder
+        if name == customer_name:
+            if category not in customercategoryTotal:
+                customercategoryTotal[category] = price
+            else:
+                customercategoryTotal[category] += price
+    return  customercategoryTotal
+    
+for customer in customerNames:
+    orderTotal = get_customer_order_total(customer)
+    categoryTotal = get_customer_category_totals(customer)
+    print(f"Customer: {customer} spent a total of ${orderTotal} and on each {category} category total is ${categoryTotal}")
+
+#Step 2: Use set operations to find customers who purchased from multiple categories
+customer_order_categories = {}
+for customerDetailOrder in allCustomerOrderDetails:
+    name, _, _, category = customerDetailOrder
+    if name in customer_order_categories:
+        customer_order_categories[name].add(category)
+    else:
+        customer_order_categories[name] = {category}
+
+multiple_category_customers = [name for name, categories in customer_order_categories.items() if len(categories) > 1]
+print("Customers who purchased from multiple categories : ", multiple_category_customers)
+
+#Step 3 : Identify common customers who bought both electronics and clothing
+electronics_and_clothing_customers = [name for name,categories in customer_order_categories.items() if categories.issuperset({"Electronics","Clothing"})]
+print("Customers who purchased both electronics and clothing : ", electronics_and_clothing_customers)
