@@ -80,7 +80,7 @@ allCategoryTotalDict = {}
 for customerDetailOrder in allCustomerOrderDetails:
     _, _, price, category = customerDetailOrder
     allCategoryTotalDict[category] = allCategoryTotalDict.get(category, 0) + price
-print("AllCategory Total Revenue : ", allCategoryTotalDict) 
+#print("AllCategory Total Revenue : ", allCategoryTotalDict) 
 
 #Another way to do the same thing
 def get_category_total(category_name):
@@ -155,7 +155,7 @@ for customerDetailOrder in allCustomerOrderDetails:
     customer_order_categories1[name] = customer_order_categories1.get(name, set()).union({category})
 
 print("Customer Order Categories Dict : ", customer_order_categories)
-print("Customer Order Categories Dict1 : ", customer_order_categories1)
+#print("Customer Order Categories Dict1 : ", customer_order_categories1)
 
 multiple_category_customers = [name for name, categories in customer_order_categories.items() if len(categories) > 1]
 print("Customers who purchased from multiple categories : ", multiple_category_customers)
