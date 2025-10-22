@@ -1,7 +1,7 @@
 #1. Store customer orders
 
 # Step 1 Create a list of customer names
-customerNames = ["Alice", "Bob", "Charlie", "Diana"]
+customerNames = ["Alice", "Bob", "Charlie", "Diana","Elina","Frank"]
 
 # Step 2: Store each customer's order details (customer name, product, price, category) as tuples inside a list
 custAliceDetails = ("Alice","Laptop",100.0,"Electronics")
@@ -9,7 +9,7 @@ custBobDetails = ("Bob","JavaBook",70.0,"Books")
 custCharlieDetails = ("Charlie","Shirt",45.0,"Clothing")
 custDiana1Details = ("Diana","Chair",40.0,"Home")
 custDiana2Details = ("Diana","Sofa",120,"Home")
-
+# just otherway to show more data as tuple inside a list
 allCustomerOrderDetails = [custAliceDetails, custBobDetails, custCharlieDetails, custDiana1Details, custDiana2Details
                            ,("Alice","Shirt",45,"Clothing"),("Elina","Headphones",30,"Electronics"),("Frank","Novel",25,"Books")
                            ,("Bob","Smartphone",200,"Electronics"),("Charlie","Jeans",60,"Clothing"),("Alice","Table",50,"Home")]
