@@ -15,7 +15,8 @@ def math_operations(x, y):
 
 print(add_numbers(5, 10))
 print(greet("Alice","30","Female"))
-print(math_operations(20, 4))
+all_meth_operations = math_operations(15, 3) # here math_operations returns a dictionary
+print(all_meth_operations)
 
 class Person:
     def __init__(self, name, age):
