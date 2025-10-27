@@ -52,26 +52,44 @@ def forest_path():
     choice = input("Do you want to (1) Follow the river or (2) Climb a tree? Enter 1 or 2: ")
     if choice == '1':
         print("You follow the river and find a hidden waterfall with a clue to the treasure!")
-        # Further choices and scenarios can be added here
+        choice = input("Do you want to (1) Continue following the river or (2) Go back? Enter 1 or 2: ")
+        if choice == '1':
+            print("You continue your journey and eventually find the legendary treasure! Congratulations!")
+        else:
+            print("You go back to the crossroads.")
+            forest_path()   
     elif choice == '2':
         print("You climb a tree but lose your footing and fall. Game over!")
-        # Option to restart can be added here
+        restart_exit("You fell from the tree! ")
     else:
-        print("Invalid choice. Please try again.")
-        forest_path()
+        print("Invalid choice. (1) Please try again or (2) restart the game.")
+        restart_exit("Invalid choice : ")
 
 def cave_path():
     print("You have entered the Mysterious Cave. It's dark and echoes surround you.")
     choice = input("Do you want to (1) Light a torch or (2) Proceed in the dark? Enter 1 or 2: ")
     if choice == '1':
         print("With the torch lit, you discover ancient markings that lead you closer to the treasure!")
-        # Further choices and scenarios can be added here
+        choice = input("Do you want to (1) Follow the markings or (2) Go back? Enter 1 or 2: ")
+        if choice == '1':
+            print("You follow the markings and find the legendary treasure! Congratulations!")
     elif choice == '2':
         print("You stumble in the dark and fall into a pit. Game over!")
-        # Option to restart can be added here
+        restart_exit("You fell into a pit! ")
     else:
         print("Invalid choice. Please try again.")
         cave_path()
+
+def restart_exit(reason):
+    choice = input(reason +"Do you want to (1) Restart the game or (2) Exit? Enter 1 or 2: ")
+    if choice == '1':
+        start_game()
+    elif choice == '2':
+        print("Thank you for playing! Goodbye.")
+        exit()
+    else:
+        print("Invalid choice. Please try again.")
+        restart_exit()
 
 def start_game():
     print("Welcome, brave explorer! Your quest is to find the legendary treasure hidden in this ancient land.")
@@ -85,9 +103,10 @@ def start_game():
         print("You enter the Mysterious Cave, where echoes of the past whisper secrets of the treasure.")
         cave_path()
     else:
-        print("Invalid choice. Please restart the game and choose either 1 or 2.")
+        print("Invalid choice. Please restart the game and choose either 1 or 2 or 3 to Exit.")
+        restart_exit("Invalid choice : ")
     return player_name
 
 player_name = start_game()
-print(f"Thank you for playing, {player_name}! May your adventures continue beyond this game.")  
+print(f"Thank you for playing, {player_name}! May your adventures continue beyond this game!.")  
 
