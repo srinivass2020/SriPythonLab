@@ -16,6 +16,8 @@ eggs/
 .eggs/
 .github/
 .idea
+.vscode/
+pip-wheel-metadata/
 lib/
 lib64/
 parts/
