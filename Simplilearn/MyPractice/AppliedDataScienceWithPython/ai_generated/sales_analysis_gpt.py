@@ -244,7 +244,7 @@ def main():
     """
     Main execution pipeline for sales analysis.
     """
-    file_path = r'D:\Workspace\Python\SriPythonWorkshop\Simplilearn\resources\AusApparalSales4thQrt2020.csv'
+    file_path = r'/Simplilearn/resources/AusApparalSales4thQrt2020.csv'
 
     # Load data
     df = load_data(file_path)

@@ -48,11 +48,50 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-DATA_PATH = r'D:\Workspace\Python\SriPythonWorkshop\Simplilearn\resources\AusApparalSales4thQrt2020.csv'
+DATA_PATH = r'/Simplilearn/resources/AusApparalSales4thQrt2020.csv'
 def load_data(path=DATA_PATH):
     return pd.read_csv(path)
 
-def inspert_data(df):
+def check_missing_values(df):
+    """
+    Report missing values, drop rows missing critical columns, fill others.
+    Returns the cleaned dataframe.
+    """
+    # summary
+    missing_counts = df.isna().sum()
+    missing_pct = (df.isna().mean() * 100).round(2)
+    summary = pd.DataFrame({'missing_count': missing_counts, 'missing_pct': missing_pct})
+    print("\nMissing values summary:")
+    print(summary[summary['missing_count'] > 0])
+
+    # Drop rows missing critical fields
+    critical = [c for c in ['Date', 'Sales'] if c in df.columns]
+    if critical:
+        before = len(df)
+        df = df.dropna(subset=critical).reset_index(drop=True)
+        after = len(df)
+        if before != after:
+            print(f"Dropped {before - after} rows missing critical columns: {critical}")
+
+    # Fill numeric columns with median
+    num_cols = df.select_dtypes(include=[np.number]).columns
+    for col in num_cols:
+        if df[col].isna().any():
+            med = df[col].median()
+            df[col] = df[col].fillna(med)
+            print(f"Filled NaNs in numeric column `{col}` with median = {med}")
+
+    # Fill object (categorical) columns with mode or 'Unknown'
+    obj_cols = df.select_dtypes(include=['object']).columns
+    for col in obj_cols:
+        if df[col].isna().any():
+            mode = df[col].mode()
+            fill_val = mode[0] if not mode.empty else 'Unknown'
+            df[col] = df[col].fillna(fill_val)
+            print(f"Filled NaNs in categorical column `{col}` with `{fill_val}`")
+    return df
+
+def inspect_data(df):
     print("Dataframe Info:")
     print(df.info())
     print("\nDataframe Head:")
@@ -62,35 +101,72 @@ def inspert_data(df):
     print("\nUnit and Sales Mode :")
     print(df[['Unit','Sales']].mode())
 
+    # Ensure string columns are stripped of whitespace
+    str_cols = df.select_dtypes(include=['object']).columns
+
+    for col in str_cols:
+        df[col] = df[col].str.strip()
+
     # Ensure Date is datetime; coerce invalid entries to NaT
     df['Date'] = pd.to_datetime(df.get('Date', None), errors='coerce')
-    # Report invalid / missing dates
     num_invalid_dates = df['Date'].isna().sum()
     if num_invalid_dates:
         print(f"\nFound {num_invalid_dates} invalid/missing Date values. Dropping those rows.")
         df = df.dropna(subset=['Date']).reset_index(drop=True)
 
-    df['Year'] = df['Date'].dt.year
-    df['Month'] = df['Date'].dt.month
-    df['Week'] = df['Date'].dt.isocalendar().week
-    df['Quarter'] = df['Date'].dt.quarter
-    print(df['Year'].value_counts())
-    print(df['Month'].value_counts())
-    print(df['Week'].value_counts())
-    print(df['Quarter'].value_counts())
+    # Add time-related columns if Date available
+    if 'Date' in df.columns and not df['Date'].isna().all():
+        df['Year'] = df['Date'].dt.year
+        df['Month'] = df['Date'].dt.month
+        df['Week'] = df['Date'].dt.isocalendar().week
+        df['Quarter'] = df['Date'].dt.quarter
+        print(df['Year'].value_counts())
+        print(df['Month'].value_counts())
+        print(df['Week'].value_counts())
+        print(df['Quarter'].value_counts())
 
-def check_missing_values(df):
-    missing = df.isnull().sum()
-    print("\nMissing Values in Each Column:")
-    print(missing)
-    return missing
+    return df
+
 def visualize_data(df):
+    # Ensure Sales is numeric
+    if 'Sales' in df.columns:
+        df['Sales'] = pd.to_numeric(df['Sales'], errors='coerce').fillna(0)
+    else:
+        raise ValueError("`Sales` column not found in dataframe. Available columns: " + ", ".join(df.columns))
+
+    # Canonicalize demographic column name (allow variations like 'Demographic Group', 'Group', etc.)
+    normalized = {col.lower().replace(" ", "").replace("_", ""): col for col in df.columns}
+    preferred_keys = ['demographicgroup', 'demographicgroup', 'demographic', 'group', 'segment']
+    dem_col = None
+    for key in preferred_keys:
+        if key in normalized:
+            dem_col = normalized[key]
+            break
+    if dem_col is None:
+        # try any column name containing 'demograph' or 'group'
+        for k, v in normalized.items():
+            if 'demograph' in k or 'group' in k:
+                dem_col = v
+                break
+
+    if dem_col is None:
+        print("Could not find a demographic/group column. Available columns:")
+        print(list(df.columns))
+        raise ValueError("Missing demographic/group column for plotting.")
+
+    # Create a standard column name for plotting
+    if dem_col != 'DemographicGroup':
+        df['DemographicGroup'] = df[dem_col]
+
     # State-wise sales analysis
-    plt.figure(figsize=(12, 6))
-    sns.barplot(x='State', y='Sales', data=df, estimator=np.sum)
-    plt.title('State-wise Sales Analysis')
-    plt.xticks(rotation=45)
-    plt.show()
+    if 'State' in df.columns:
+        plt.figure(figsize=(12, 6))
+        sns.barplot(x='State', y='Sales', data=df, estimator=np.sum)
+        plt.title('State-wise Sales Analysis')
+        plt.xticks(rotation=45)
+        plt.show()
+    else:
+        print("`State` column not found; skipping state-wise plot.")
 
     # Group-wise sales analysis
     plt.figure(figsize=(12, 6))
@@ -99,18 +175,25 @@ def visualize_data(df):
     plt.xticks(rotation=45)
     plt.show()
 
-    # Time-of-the-day analysis
-    df['Hour'] = pd.to_datetime(df['Time']).dt.hour
-    plt.figure(figsize=(12, 6))
-    sns.lineplot(x='Hour', y='Sales', data=df, estimator=np.sum)
-    plt.title('Time-of-the-day Sales Analysis')
-    plt.xticks(range(0, 24))
-    plt.show()
+    # Time-of-the-day analysis (only if Time column exists)
+    if 'Time' in df.columns:
+        # Safely parse times; ignore invalid entries
+        df['Hour'] = pd.to_datetime(df['Time'], errors='coerce').dt.hour
+        if df['Hour'].notna().any():
+            plt.figure(figsize=(12, 6))
+            sns.lineplot(x='Hour', y='Sales', data=df, estimator=np.sum)
+            plt.title('Time-of-the-day Sales Analysis')
+            plt.xticks(range(0, 24))
+            plt.show()
+        else:
+            print("No valid Time values for hourly plot; skipping time-of-day analysis.")
+    else:
+        print("`Time` column not found; skipping time-of-day analysis.")
 
 def main():
     df = load_data()
-    inspert_data(df)
-    check_missing_values(df)
+    df = check_missing_values(df)
+    df = inspect_data(df)
     visualize_data(df)
 
 if __name__ == "__main__":
