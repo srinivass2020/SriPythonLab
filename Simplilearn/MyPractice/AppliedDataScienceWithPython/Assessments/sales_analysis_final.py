@@ -150,8 +150,8 @@ def analyze_data(df):
     print(f"\nSales by Time of Day:\n{time_sales}")
 
     #4. Date wise Sales Trend
-    date_sales = df.groupby('Date')['Sales'].sum().sort_index()
-    print(f"\nSales Trend Over Dates:\n{date_sales}")
+    daily_sales = df.groupby('Date')['Sales'].sum().sort_index()
+    print(f"\nSales Trend Over Dates:\n{daily_sales}")
 
     # Recommendations
     print("\n--- Recommendations ---")
@@ -160,10 +160,10 @@ def analyze_data(df):
         f"2. Develop specific sales programs and marketing campaigns for {lowest_state}, WA, and NT to boost performance.")
     print("3. Sales are relatively balanced across demographic groups, suggesting a broad market appeal.")
 
-    return state_group, group_sales, time_sales , date_sales
+    return state_group, group_sales, time_sales , daily_sales
 
 
-def visualize_data(df, state_sales, group_sales, time_sales):
+def visualize_data(df, state_sales, group_sales, time_sales,daily_sales):
     """
     Generates and displays visualizations for the analysis.
     """
@@ -195,7 +195,7 @@ def visualize_data(df, state_sales, group_sales, time_sales):
     # Plot 4: Weekly/Daily Sales Trend
     ax4 = fig.add_subplot(2, 2, 4)
     # Resample to weekly sales sum to see trend clearly
-    daily_sales = df.groupby('Date')['Sales'].sum()
+    #daily_sales = df.groupby('Date')['Sales'].sum()
     sns.lineplot(data=daily_sales, ax=ax4, color='blue', marker='o')
     ax4.set_title('Daily Sales Trend (Oct - Dec)')
     ax4.set_ylabel('Total Daily Sales')
@@ -215,10 +215,10 @@ def main():
 
     if df is not None:
         # Step 2: Data Analysis & Reporting
-        state_sales, group_sales, time_sales ,date_sales = analyze_data(df)
+        state_sales, group_sales, time_sales ,daily_sales = analyze_data(df)
 
         # Step 3: Visualization
-        visualize_data(df, state_sales, group_sales, time_sales)
+        visualize_data(df, state_sales, group_sales, time_sales,daily_sales)
 
 if __name__ == "__main__":
     main()
