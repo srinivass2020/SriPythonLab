@@ -143,10 +143,10 @@ def encode_categorical(df):
     # Defining hierarchy: Basic < 2n Cycle < Graduation < Master < PhD
     education_map = {'Basic': 0, '2n Cycle': 1, 'Graduation': 2, 'Master': 3, 'PhD': 4}
     df['Education_Ordinal'] = df['Education'].map(education_map)
-
+    print(df.head())
     # One-Hot Encoding for Marital_Status
     df = pd.get_dummies(df, columns=['Marital_Status'], prefix='Marital', drop_first=True)
-
+    print(df.head())
     return df
 
 
@@ -173,6 +173,8 @@ def analyze_hypotheses(df):
     print(f"2. Children vs Web Purchases Correlation: {corr_kids_web:.2f}")
     if corr_kids_web > 0:
         print("   -> Support found: Positive correlation between kids and web purchases.")
+    else:
+        print(" -> No Strong support found on this hypothesis : Customers with children lean toward online shopping" )
 
     # Hypothesis 3: Cannibalization (Store vs Other Channels)
     # Check correlation between Store Purchases and (Web + Catalog)
