@@ -69,13 +69,22 @@ def load_and_clean_data(filepath):
     df['Dt_Customer'] = pd.to_datetime(df['Dt_Customer'])
 
     # 4. Impute Missing Income Values
+
     #    Using median income based on Education and Marital_Status as requested
     print(f"Missing Income values before imputation: {df['Income'].isnull().sum()}")
+    # Print rows that have Income Null before imputation
+    print("Before Filling",df[df['Income'].isnull()][['Education', 'Marital_Status', 'Income']].head())
+    # Collect and Print rwos of those Id's of Income Null rows before imputation
+    df_ids_before = df[df['Income'].isnull()].index.tolist()
+    #Print the rows of these Id's
+    print(df.loc[df_ids_before][['Education', 'Marital_Status', 'Income']])
+     # Impute using group median
     df['Income'] = df.groupby(['Education', 'Marital_Status'])['Income'].transform(lambda x: x.fillna(x.median()))
     print(f"Missing Income values after imputation: {df['Income'].isnull().sum()}")
+    # Print rows that have Income Null after imputation
+    print(df.loc[df_ids_before][['Education', 'Marital_Status', 'Income']])
 
     return df
-
 
 def feature_engineering(df):
     """
@@ -92,11 +101,11 @@ def feature_engineering(df):
 
     # 3. Total Spending (Sum of all 'Mnt' columns)
     spending_cols = [col for col in df.columns if 'Mnt' in col]
-    df['Total_Spending'] = df[spending_cols].sum(axis=1)
+    df['Total_Spending'] = df[spending_cols].sum(axis=1) # axis=1 for row-wise sum
 
     # 4. Total Purchases (Sum of all 'Num...Purchases' columns)
     purchase_cols = ['NumWebPurchases', 'NumCatalogPurchases', 'NumStorePurchases', 'NumDealsPurchases']
-    df['Total_Purchases'] = df[purchase_cols].sum(axis=1)
+    df['Total_Purchases'] = df[purchase_cols].sum(axis=1) # axis=1 for row-wise sum
 
     print("After Feature Engineering ",df.head())
     return df
@@ -105,6 +114,12 @@ def feature_engineering(df):
 def outlier_treatment(df):
     """
     Visualizes and treats outliers.
+    # remove rows with Income considered outliers by the 1.5*IQR rule
+    q1 = df['Income'].quantile(0.25)
+    q3 = df['Income'].quantile(0.75)
+    iqr = q3 - q1
+    lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+    df = df[(df['Income'] >= lower) & (df['Income'] <= upper)]
     """
     print("\n--- Outlier Analysis ---")
 
@@ -146,6 +161,8 @@ def encode_categorical(df):
 
     # One-Hot Encoding for Marital_Status
     df = pd.get_dummies(df, columns=['Marital_Status'], prefix='Marital', drop_first=True)
+
+    print ("Encoding Categorical \n" , df.head())
 
     return df
 
